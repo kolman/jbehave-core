@@ -302,11 +302,7 @@ public class StoryRunner {
                     if (isParameterisedByExamples(scenario)) { // run parametrised scenarios by examples
                         runScenariosParametrisedByExamples(context, scenario, story.getLifecycle(), storyAndScenarioMeta);
                     } else { // run as plain old scenario
-                        runLifecycleSteps(context, story.getLifecycle(), Stage.BEFORE, storyAndScenarioMeta);
-                        addMetaParameters(storyParameters, storyAndScenarioMeta);
-                        runGivenStories(scenario.getGivenStories(), storyParameters, context);
-                        runScenarioSteps(context, scenario, storyParameters);
-                        runLifecycleSteps(context, story.getLifecycle(), Stage.AFTER, storyAndScenarioMeta);
+                        runStepWithLifecycle(context, story.getLifecycle(), storyParameters, scenario, storyAndScenarioMeta);
                     }
 
                     // run after scenario steps, if allowed
@@ -403,7 +399,7 @@ public class StoryRunner {
                 scenarios.add(scenario);
             }
         }
-        return new Story(story.getPath(), story.getDescription(), story.getMeta(), story.getNarrative(), scenarios); 
+        return new Story(story.getPath(), story.getDescription(), story.getMeta(), story.getNarrative(), scenarios);
     }
 
     private boolean matchesParameters(Scenario scenario, Map<String, String> parameters) {
@@ -435,17 +431,21 @@ public class StoryRunner {
                 context.resetState();
             }
             runBeforeOrAfterScenarioSteps(context, scenario, storyAndScenarioMeta, Stage.BEFORE, ScenarioType.EXAMPLE);
-            runLifecycleSteps(context, lifecycle, Stage.BEFORE, storyAndScenarioMeta);
-            addMetaParameters(scenarioParameters, storyAndScenarioMeta);
-            runGivenStories(scenario.getGivenStories(), scenarioParameters, context);
-            runScenarioSteps(context, scenario, scenarioParameters);
-            runLifecycleSteps(context, lifecycle, Stage.AFTER, storyAndScenarioMeta);
+            runStepWithLifecycle(context, lifecycle, scenarioParameters, scenario, storyAndScenarioMeta);
             runBeforeOrAfterScenarioSteps(context, scenario, storyAndScenarioMeta, Stage.AFTER, ScenarioType.EXAMPLE);
         }
         reporter.get().afterExamples();
     }
 
-	private Meta parameterMeta(Keywords keywords,
+    private void runStepWithLifecycle(RunContext context, Lifecycle lifecycle, Map<String, String> parameters, Scenario scenario, Meta storyAndScenarioMeta) throws Throwable {
+        runLifecycleSteps(context, lifecycle, Stage.BEFORE, storyAndScenarioMeta);
+        addMetaParameters(parameters, storyAndScenarioMeta);
+        runGivenStories(scenario.getGivenStories(), parameters, context);
+        runScenarioSteps(context, scenario, parameters);
+        runLifecycleSteps(context, lifecycle, Stage.AFTER, storyAndScenarioMeta);
+    }
+
+    private Meta parameterMeta(Keywords keywords,
 			Map<String, String> scenarioParameters) {
 		String meta = keywords.meta();
 		if (scenarioParameters.containsKey(meta)) {
