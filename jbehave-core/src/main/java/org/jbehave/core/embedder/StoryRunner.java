@@ -434,13 +434,13 @@ public class StoryRunner {
             if (context.configuration().storyControls().resetStateBeforeScenario()) {
                 context.resetState();
             }
-            runLifecycleSteps(context, lifecycle, Stage.BEFORE, storyAndScenarioMeta);
             runBeforeOrAfterScenarioSteps(context, scenario, storyAndScenarioMeta, Stage.BEFORE, ScenarioType.EXAMPLE);
+            runLifecycleSteps(context, lifecycle, Stage.BEFORE, storyAndScenarioMeta);
             addMetaParameters(scenarioParameters, storyAndScenarioMeta);
             runGivenStories(scenario.getGivenStories(), scenarioParameters, context);
             runScenarioSteps(context, scenario, scenarioParameters);
-            runBeforeOrAfterScenarioSteps(context, scenario, storyAndScenarioMeta, Stage.AFTER, ScenarioType.EXAMPLE);
             runLifecycleSteps(context, lifecycle, Stage.AFTER, storyAndScenarioMeta);
+            runBeforeOrAfterScenarioSteps(context, scenario, storyAndScenarioMeta, Stage.AFTER, ScenarioType.EXAMPLE);
         }
         reporter.get().afterExamples();
     }
